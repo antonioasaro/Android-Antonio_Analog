@@ -1,6 +1,8 @@
 package com.antonio_asaro.www.android_antonio_analog;
 
+import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -16,6 +18,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.wearable.complications.ComplicationData;
+import android.support.wearable.complications.ComplicationHelperActivity;
 import android.support.wearable.complications.ComplicationText;
 import android.support.wearable.complications.SystemProviders;
 import android.support.wearable.complications.rendering.ComplicationDrawable;
@@ -47,7 +50,7 @@ import java.util.concurrent.TimeUnit;
  * in the Google Watch Face Code Lab:
  * https://codelabs.developers.google.com/codelabs/watchface/index.html#0
  */
-public class Antonio_Analog extends CanvasWatchFaceService {
+public class ComplicationWatchFaceService extends CanvasWatchFaceService {
     private static final String TAG = "Antonio_Analog";
 
     /*
@@ -86,6 +89,45 @@ public class Antonio_Analog extends CanvasWatchFaceService {
                     ComplicationData.TYPE_SMALL_IMAGE
             }
     };
+
+
+    // Used by {@link ComplicationConfigActivity} to retrieve id for complication locations and
+    // to check if complication location is supported.
+    static int getComplicationId(
+            com.antonio_asaro.www.android_antonio_analog.ComplicationConfigActivity.ComplicationLocation complicationLocation) {
+        switch (complicationLocation) {
+            case LEFT:
+                return LEFT_COMPLICATION_ID;
+            case CENTER:
+                return CENTER_COMPLICATION_ID;
+            case RIGHT:
+                return RIGHT_COMPLICATION_ID;
+            default:
+                return -1;
+        }
+    }
+
+    // Used by {@link ComplicationConfigActivity} to retrieve all complication ids.
+    static int[] getComplicationIds() {
+        return COMPLICATION_IDS;
+    }
+
+    // Used by {@link ComplicationConfigActivity} to retrieve complication types supported by
+    // location.
+    static int[] getSupportedComplicationTypes(
+            com.antonio_asaro.www.android_antonio_analog.ComplicationConfigActivity.ComplicationLocation complicationLocation) {
+
+        switch (complicationLocation) {
+            case LEFT:
+                return COMPLICATION_SUPPORTED_TYPES[0];
+            case CENTER:
+                return COMPLICATION_SUPPORTED_TYPES[1];
+            case RIGHT:
+                return COMPLICATION_SUPPORTED_TYPES[2];
+            default:
+                return new int[] {};
+        }
+    }
 ////    private SensorManager mSensorManager;
 
 
@@ -95,15 +137,15 @@ public class Antonio_Analog extends CanvasWatchFaceService {
     }
 
     private static class EngineHandler extends Handler {
-        private final WeakReference<Antonio_Analog.Engine> mWeakReference;
+        private final WeakReference<ComplicationWatchFaceService.Engine> mWeakReference;
 
-        public EngineHandler(Antonio_Analog.Engine reference) {
+        public EngineHandler(ComplicationWatchFaceService.Engine reference) {
             mWeakReference = new WeakReference<>(reference);
         }
 
         @Override
         public void handleMessage(Message msg) {
-            Antonio_Analog.Engine engine = mWeakReference.get();
+            ComplicationWatchFaceService.Engine engine = mWeakReference.get();
             if (engine != null) {
                 switch (msg.what) {
                     case MSG_UPDATE_TIME:
@@ -167,7 +209,7 @@ public class Antonio_Analog extends CanvasWatchFaceService {
         public void onCreate(SurfaceHolder holder) {
             super.onCreate(holder);
 
-            setWatchFaceStyle(new WatchFaceStyle.Builder(Antonio_Analog.this)
+            setWatchFaceStyle(new WatchFaceStyle.Builder(ComplicationWatchFaceService.this)
                     .setAcceptsTapEvents(true)
                     .build());
 
@@ -188,7 +230,7 @@ public class Antonio_Analog extends CanvasWatchFaceService {
         private void initFormats() {
             mDayOfWeekFormat = new SimpleDateFormat("EEEE", Locale.getDefault());
             mDayOfWeekFormat.setCalendar(mCalendar);
-            mDateFormat = DateFormat.getDateFormat(Antonio_Analog.this);
+            mDateFormat = DateFormat.getDateFormat(ComplicationWatchFaceService.this);
             mDateFormat.setCalendar(mCalendar);
             mDayDateFormat = new SimpleDateFormat("EEE MMM d", Locale.getDefault());
             mDayDateFormat.setCalendar(mCalendar);
@@ -449,10 +491,87 @@ public class Antonio_Analog extends CanvasWatchFaceService {
                     // The user has completed the tap gesture.
                     // TODO: Add code to handle the tap gesture.
 ////                    Toast.makeText(getApplicationContext(), R.string.message, Toast.LENGTH_SHORT).show();
+                    int tappedComplicationId = getTappedComplicationId(x, y);
+                    if (tappedComplicationId != -1) {
+                        onComplicationTap(tappedComplicationId);
+                    }
                     break;
             }
             invalidate();
         }
+
+        /*
+         * Determines if tap inside a complication area or returns -1.
+         */
+        private int getTappedComplicationId(int x, int y) {
+
+            int complicationId;
+            ComplicationData complicationData;
+            ComplicationDrawable complicationDrawable;
+
+            long currentTimeMillis = System.currentTimeMillis();
+
+            for (int i = 0; i < COMPLICATION_IDS.length; i++) {
+                complicationId = COMPLICATION_IDS[i];
+                complicationData = mComplicationDataSparseArray.get(complicationId);
+
+                if ((complicationData != null)
+                        && (complicationData.isActive(currentTimeMillis))
+                        && (complicationData.getType() != ComplicationData.TYPE_NOT_CONFIGURED)
+                        && (complicationData.getType() != ComplicationData.TYPE_EMPTY)) {
+
+                    complicationDrawable = mComplicationDrawableSparseArray.get(complicationId);
+                    Rect complicationBoundingRect = complicationDrawable.getBounds();
+
+                    if (complicationBoundingRect.width() > 0) {
+                        if (complicationBoundingRect.contains(x, y)) {
+                            return complicationId;
+                        }
+                    } else {
+                        Log.e(TAG, "Not a recognized complication id.");
+                    }
+                }
+            }
+            return -1;
+        }
+
+        // Fires PendingIntent associated with complication (if it has one).
+        private void onComplicationTap(int complicationId) {
+            // TODO: Step 5, onComplicationTap()
+            Log.d(TAG, "onComplicationTap()");
+
+            ComplicationData complicationData =
+                    mComplicationDataSparseArray.get(complicationId);
+
+            if (complicationData != null) {
+
+                if (complicationData.getTapAction() != null) {
+                    try {
+                        complicationData.getTapAction().send();
+                    } catch (PendingIntent.CanceledException e) {
+                        Log.e(TAG, "onComplicationTap() tap action error: " + e);
+                    }
+
+                } else if (complicationData.getType() == ComplicationData.TYPE_NO_PERMISSION) {
+
+                    // Watch face does not have permission to receive complication data, so launch
+                    // permission request.
+                    ComponentName componentName = new ComponentName(
+                            getApplicationContext(),
+                            ComplicationWatchFaceService.class);
+
+                    Intent permissionRequestIntent =
+                            ComplicationHelperActivity.createPermissionRequestHelperIntent(
+                                    getApplicationContext(), componentName);
+
+                    startActivity(permissionRequestIntent);
+                }
+
+            } else {
+                Log.d(TAG, "No PendingIntent for complication " + complicationId + ".");
+            }
+        }
+
 
         @Override
         public void onDraw(Canvas canvas, Rect bounds) {
@@ -497,6 +616,7 @@ public class Antonio_Analog extends CanvasWatchFaceService {
              * cases where you want to allow users to select their own photos, this dynamically
              * creates them on top of the photo.
              */
+
             float innerTickRadius;
             float outerTickRadius = mCenterX;
             mTickAndCirclePaint.setStrokeWidth(MINUTE_STROKE_WIDTH);
@@ -528,12 +648,9 @@ public class Antonio_Analog extends CanvasWatchFaceService {
              * These calculations reflect the rotation in degrees per unit of time, e.g.,
              * 360 / 60 = 6 and 360 / 12 = 30.
              */
-            final float seconds =
-                    (mCalendar.get(Calendar.SECOND) + mCalendar.get(Calendar.MILLISECOND) / 1000f);
+            final float seconds = (mCalendar.get(Calendar.SECOND) + mCalendar.get(Calendar.MILLISECOND) / 1000f);
             final float secondsRotation = seconds * 6f;
-
             final float minutesRotation = mCalendar.get(Calendar.MINUTE) * 6f;
-
             final float hourHandOffset = mCalendar.get(Calendar.MINUTE) / 2f;
             final float hoursRotation = (mCalendar.get(Calendar.HOUR) * 30) + hourHandOffset;
 
@@ -541,6 +658,11 @@ public class Antonio_Analog extends CanvasWatchFaceService {
              * Save the canvas state before we can begin to rotate it.
              */
             canvas.save();
+            canvas.drawText("12", mCenterX-26,  mCenterY-148, mTickAndCirclePaint);
+            canvas.drawText("6",  mCenterX-14,  mCenterY+180, mTickAndCirclePaint);
+            canvas.drawText("3",  mCenterX+154, mCenterY+16,  mTickAndCirclePaint);
+            canvas.drawText("9",  mCenterX-176, mCenterY+16,  mTickAndCirclePaint);
+            canvas.drawText(mDayDateFormat.format(mDate), 128, 112, mDayDatePaint);
 
             canvas.rotate(hoursRotation, mCenterX, mCenterY);
             canvas.drawLine(mCenterX,mCenterY - CENTER_GAP_AND_CIRCLE_RADIUS-16, mCenterX,mCenterY - sHourHandLength, mHourPaint);
@@ -565,12 +687,6 @@ public class Antonio_Analog extends CanvasWatchFaceService {
             /* Restore the canvas' original orientation. */
             canvas.restore();
 
-            /* draw 12, 3, 6 and 9 hour markers */
-            canvas.drawText("12", mCenterX-26,  mCenterY-148, mTickAndCirclePaint);
-            canvas.drawText("6",  mCenterX-14,  mCenterY+180, mTickAndCirclePaint);
-            canvas.drawText("3",  mCenterX+154, mCenterY+16,   mTickAndCirclePaint);
-            canvas.drawText("9",  mCenterX-176, mCenterY+16,   mTickAndCirclePaint);
-            canvas.drawText(mDayDateFormat.format(mDate), 128, 112, mDayDatePaint);
         }
 
         @Override
@@ -596,7 +712,7 @@ public class Antonio_Analog extends CanvasWatchFaceService {
             }
             mRegisteredTimeZoneReceiver = true;
             IntentFilter filter = new IntentFilter(Intent.ACTION_TIMEZONE_CHANGED);
-            Antonio_Analog.this.registerReceiver(mTimeZoneReceiver, filter);
+            ComplicationWatchFaceService.this.registerReceiver(mTimeZoneReceiver, filter);
         }
 
         private void unregisterReceiver() {
@@ -604,7 +720,7 @@ public class Antonio_Analog extends CanvasWatchFaceService {
                 return;
             }
             mRegisteredTimeZoneReceiver = false;
-            Antonio_Analog.this.unregisterReceiver(mTimeZoneReceiver);
+            ComplicationWatchFaceService.this.unregisterReceiver(mTimeZoneReceiver);
         }
 
         /**

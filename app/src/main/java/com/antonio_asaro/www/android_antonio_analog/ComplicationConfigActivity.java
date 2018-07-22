@@ -38,7 +38,7 @@ import java.util.concurrent.Executors;
  */
 public class ComplicationConfigActivity extends Activity implements View.OnClickListener {
 
-    private static final String TAG = "ConfigActivity";
+    private static final String TAG = "ComplicationConfigActivity";
 
     static final int COMPLICATION_CONFIG_REQUEST_CODE = 1001;
 
@@ -47,7 +47,6 @@ public class ComplicationConfigActivity extends Activity implements View.OnClick
      * configuration Activity know which complication locations are supported, their ids, and
      * supported complication data types.
      */
-    // TODO: Step 3, intro 1
     public enum ComplicationLocation {
         LEFT,
         CENTER,
@@ -80,23 +79,15 @@ public class ComplicationConfigActivity extends Activity implements View.OnClick
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        Log.d(TAG, "onCreate()");
         setContentView(R.layout.activity_config);
 
         mDefaultAddComplicationDrawable = getDrawable(R.drawable.add_complication);
-
-        // TODO: Step 3, initialize 1
         mSelectedComplicationId = -1;
-
-        mLeftComplicationId =
-                ComplicationWatchFaceService.getComplicationId(ComplicationLocation.LEFT);
-        mCenterComplicationId =
-                ComplicationWatchFaceService.getComplicationId(ComplicationLocation.CENTER);
-        mRightComplicationId =
-                ComplicationWatchFaceService.getComplicationId(ComplicationLocation.RIGHT);
-
-        mWatchFaceComponentName =
-                new ComponentName(getApplicationContext(), ComplicationWatchFaceService.class);
+        mLeftComplicationId   = ComplicationWatchFaceService.getComplicationId(ComplicationLocation.LEFT);
+        mCenterComplicationId = ComplicationWatchFaceService.getComplicationId(ComplicationLocation.CENTER);
+        mRightComplicationId  = ComplicationWatchFaceService.getComplicationId(ComplicationLocation.RIGHT);
+        mWatchFaceComponentName = new ComponentName(getApplicationContext(), ComplicationWatchFaceService.class);
 
         // Sets up left complication preview.
         mLeftComplicationBackground = (ImageView) findViewById(R.id.left_complication_background);
@@ -125,9 +116,7 @@ public class ComplicationConfigActivity extends Activity implements View.OnClick
         mRightComplication.setImageDrawable(mDefaultAddComplicationDrawable);
         mRightComplicationBackground.setVisibility(View.INVISIBLE);
 
-        // TODO: Step 3, initialize 2
-        mProviderInfoRetriever =
-                new ProviderInfoRetriever(getApplicationContext(), Executors.newCachedThreadPool());
+        mProviderInfoRetriever = new ProviderInfoRetriever(getApplicationContext(), Executors.newCachedThreadPool());
         mProviderInfoRetriever.init();
 
         retrieveInitialComplicationsData();
@@ -149,9 +138,7 @@ public class ComplicationConfigActivity extends Activity implements View.OnClick
                     public void onProviderInfoReceived(
                             int watchFaceComplicationId,
                             @Nullable ComplicationProviderInfo complicationProviderInfo) {
-
                         Log.d(TAG, "onProviderInfoReceived: " + complicationProviderInfo);
-
                         updateComplicationViews(watchFaceComplicationId, complicationProviderInfo);
                     }
                 },
@@ -177,11 +164,9 @@ public class ComplicationConfigActivity extends Activity implements View.OnClick
     // class, so user can choose their complication data provider.
     private void launchComplicationHelperActivity(ComplicationLocation complicationLocation) {
 
-        mSelectedComplicationId =
-                ComplicationWatchFaceService.getComplicationId(complicationLocation);
+        mSelectedComplicationId = ComplicationWatchFaceService.getComplicationId(complicationLocation);
 
         if (mSelectedComplicationId >= 0) {
-
             int[] supportedTypes =
                     ComplicationWatchFaceService.getSupportedComplicationTypes(
                             complicationLocation);
@@ -236,7 +221,6 @@ public class ComplicationConfigActivity extends Activity implements View.OnClick
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 
-        // TODO: Step 3, update views
         if (requestCode == COMPLICATION_CONFIG_REQUEST_CODE && resultCode == RESULT_OK) {
 
             // Retrieves information for selected Complication provider.

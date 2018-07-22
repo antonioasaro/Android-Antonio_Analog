@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Copyright (C) 2017 The Android Open Source Project
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,20 +12,19 @@
   ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
-  -->
-<manifest package="com.antonio_asaro.www.android_antonio_analog"
-          xmlns:android="http://schemas.android.com/apk/res/android"
-          xmlns:tools="http://schemas.android.com/tools">
+-->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.antonio_asaro.www.android_antonio_analog">
 
-    <uses-feature android:name="android.hardware.type.watch"/>
+    <uses-feature android:name="android.hardware.type.watch" />
 
     <!-- Required to act as a custom watch face. -->
     <uses-permission android:name="android.permission.WAKE_LOCK" />
 
-    <!--  TODO: Step 2, receiveComplicationData -->
+    <!-- TODO: Step 2, receiveComplicationData -->
     <!-- Required for complications to receive complication data and open the provider chooser. -->
-    <uses-permission
-        android:name="com.google.android.wearable.permission.RECEIVE_COMPLICATION_DATA" />
+    <uses-permission android:name="com.google.android.wearable.permission.RECEIVE_COMPLICATION_DATA" />
 
     <application
         android:allowBackup="true"
@@ -35,22 +33,21 @@
         android:supportsRtl="true"
         android:theme="@android:style/Theme.DeviceDefault"
         tools:ignore="MissingApplicationIcon">
-
         <meta-data
             android:name="com.google.android.wearable.standalone"
-            android:value="true"/>
+            android:value="true" />
         <meta-data
             android:name="com.google.android.gms.version"
-            android:value="@integer/google_play_services_version"/>
+            android:value="@integer/google_play_services_version" />
 
         <uses-library
             android:name="com.google.android.wearable"
-            android:required="false"/>
+            android:required="false" />
 
         <service
             android:name=".ComplicationWatchFaceService"
             android:label="@string/app_name"
-            android:permission="android.permission.BIND_WALLPAPER" >
+            android:permission="android.permission.BIND_WALLPAPER">
             <meta-data
                 android:name="android.service.wallpaper"
                 android:resource="@xml/watch_face" />
@@ -60,10 +57,9 @@
             <meta-data
                 android:name="com.google.android.wearable.watchface.preview_circular"
                 android:resource="@drawable/preview_analog" />
-
             <meta-data
                 android:name="com.google.android.wearable.watchface.wearableConfigurationAction"
-                android:value="com.antnio_asaro.www.android.watchface.CONFIG_COMPLICATION"/>
+                android:value="com.antonio_asaro.android.wearable.watchface.CONFIG_COMPLICATION" />
 
             <intent-filter>
                 <action android:name="android.service.wallpaper.WallpaperService" />
@@ -71,17 +67,16 @@
             </intent-filter>
         </service>
 
-        <activity android:name="android.support.wearable.complications.ComplicationHelperActivity"/>
-
         <activity
             android:name=".ComplicationConfigActivity"
-            android:label="@string/app_name">
+            android:label="ComplicationConfigActivity">
             <intent-filter>
-                <action android:name="com.antonio_asaro.android.watchface.CONFIG_COMPLICATION"/>
-                <category android:name="com.google.android.wearable.watchface.category.WEARABLE_CONFIGURATION"/>
+                <action android:name="com.antonio_asaro.android.wearable.watchface.CONFIG_COMPLICATION" />
+                <category android:name="com.google.android.wearable.watchface.category.WEARABLE_CONFIGURATION" />
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
         </activity>
+
     </application>
 
 </manifest>

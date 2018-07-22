@@ -19,7 +19,6 @@ import android.os.Handler;
 import android.os.Message;
 import android.support.wearable.complications.ComplicationData;
 import android.support.wearable.complications.ComplicationHelperActivity;
-import android.support.wearable.complications.ComplicationText;
 import android.support.wearable.complications.SystemProviders;
 import android.support.wearable.complications.rendering.ComplicationDrawable;
 import android.support.wearable.watchface.CanvasWatchFaceService;
@@ -51,7 +50,7 @@ import java.util.concurrent.TimeUnit;
  * https://codelabs.developers.google.com/codelabs/watchface/index.html#0
  */
 public class ComplicationWatchFaceService extends CanvasWatchFaceService {
-    private static final String TAG = "Antonio_Analog";
+    private static final String TAG = "ComplicationWatchFaceService";
 
     /*
      * Updates rate in milliseconds for interactive mode. We update once a second to advance the
@@ -595,16 +594,10 @@ public class ComplicationWatchFaceService extends CanvasWatchFaceService {
 
         private void drawComplications(Canvas canvas, long currentTimeMillis) {
             int complicationId;
-            ComplicationData complicationData;
             ComplicationDrawable complicationDrawable;
 
             for (int i = 0; i < COMPLICATION_IDS.length; i++) {
                 complicationId = COMPLICATION_IDS[i];
-                complicationData = mComplicationDataSparseArray.get(complicationId);
-                if (complicationData != null) {
-                    ComplicationText mainText = complicationData.getShortText();
-                    CharSequence mainMsg = mainText.getText(getApplicationContext(), currentTimeMillis);
-                }
                 complicationDrawable = mComplicationDrawableSparseArray.get(complicationId);
                 complicationDrawable.draw(canvas, currentTimeMillis);
             }

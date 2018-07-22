@@ -22,12 +22,16 @@ import android.support.wearable.complications.rendering.ComplicationDrawable;
 import android.support.wearable.watchface.CanvasWatchFaceService;
 import android.support.wearable.watchface.WatchFaceService;
 import android.support.wearable.watchface.WatchFaceStyle;
+import android.text.format.DateFormat;
 import android.util.Log;
 import android.util.SparseArray;
 import android.view.SurfaceHolder;
 
 import java.lang.ref.WeakReference;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
+import java.util.Locale;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
@@ -144,6 +148,7 @@ public class Antonio_Analog extends CanvasWatchFaceService {
         private Paint mMinutePaint;
         private Paint mSecondPaint;
         private Paint mTickAndCirclePaint;
+        private Paint mDayDatePaint;
         private Paint mBackgroundPaint;
         private Bitmap mBackgroundBitmap;
         private Bitmap mGrayBackgroundBitmap;
@@ -152,6 +157,11 @@ public class Antonio_Analog extends CanvasWatchFaceService {
         private boolean mBurnInProtection;
         private SparseArray<ComplicationData> mComplicationDataSparseArray;
         private SparseArray<ComplicationDrawable> mComplicationDrawableSparseArray;
+
+        Date mDate;
+        SimpleDateFormat mDayOfWeekFormat;
+        SimpleDateFormat mDayDateFormat;
+        java.text.DateFormat mDateFormat;
 
         @Override
         public void onCreate(SurfaceHolder holder) {
@@ -162,6 +172,8 @@ public class Antonio_Analog extends CanvasWatchFaceService {
                     .build());
 
             mCalendar = Calendar.getInstance();
+            mDate = new Date();
+            initFormats();
             initializeBackground();
             initialComplications();
             initializeWatchFace();
@@ -171,6 +183,15 @@ public class Antonio_Analog extends CanvasWatchFaceService {
             mBackgroundPaint = new Paint();
             mBackgroundPaint.setColor(Color.BLACK);
             mBackgroundBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.bg);
+        }
+
+        private void initFormats() {
+            mDayOfWeekFormat = new SimpleDateFormat("EEEE", Locale.getDefault());
+            mDayOfWeekFormat.setCalendar(mCalendar);
+            mDateFormat = DateFormat.getDateFormat(Antonio_Analog.this);
+            mDateFormat.setCalendar(mCalendar);
+            mDayDateFormat = new SimpleDateFormat("EEE MMM d", Locale.getDefault());
+            mDayDateFormat.setCalendar(mCalendar);
         }
 
         private void initialComplications() {
@@ -192,9 +213,14 @@ public class Antonio_Analog extends CanvasWatchFaceService {
             centerComplicationDrawable.setTextColorActive(Color.WHITE);
             rightComplicationDrawable.setTextColorActive(Color.WHITE);
 
-            Rect leftBounds = new Rect (40, 132, 40+128, 132+128);
-            Rect centerBounds = new Rect (134, 236, 134+128, 236+128);
-            Rect rightBounds = new Rect (240, 132, 240+128, 132+128);
+            leftComplicationDrawable.setBorderColorActive(Color.YELLOW);
+            centerComplicationDrawable.setBorderColorActive(Color.WHITE);
+            rightComplicationDrawable.setBorderColorActive(Color.GREEN);
+
+            int diameter = 100;
+            Rect leftBounds =   new Rect (64,  148, 64+diameter,  148+diameter);
+            Rect centerBounds = new Rect (150, 232, 150+diameter, 232+diameter);
+            Rect rightBounds =  new Rect (240, 148, 240+diameter, 148+diameter);
 
             leftComplicationDrawable.setBounds(leftBounds);
             centerComplicationDrawable.setBounds(centerBounds);
@@ -242,6 +268,10 @@ public class Antonio_Analog extends CanvasWatchFaceService {
             mTickAndCirclePaint.setStyle(Paint.Style.STROKE);
             mTickAndCirclePaint.setShadowLayer(SHADOW_RADIUS, 0, 0, mWatchHandShadowColor);
             mTickAndCirclePaint.setTextSize(48);
+
+            mDayDatePaint = new Paint();
+            mDayDatePaint.setColor(mWatchTickColor);
+            mDayDatePaint.setTextSize(32);
         }
 
         @Override
@@ -455,7 +485,6 @@ public class Antonio_Analog extends CanvasWatchFaceService {
                 if (complicationData != null) {
                     ComplicationText mainText = complicationData.getShortText();
                     CharSequence mainMsg = mainText.getText(getApplicationContext(), currentTimeMillis);
-                    Log.d(TAG, "drawComplications(): " + i + ", " + mainMsg);
                 }
                 complicationDrawable = mComplicationDrawableSparseArray.get(complicationId);
                 complicationDrawable.draw(canvas, currentTimeMillis);
@@ -541,6 +570,7 @@ public class Antonio_Analog extends CanvasWatchFaceService {
             canvas.drawText("6",  mCenterX-14,  mCenterY+180, mTickAndCirclePaint);
             canvas.drawText("3",  mCenterX+154, mCenterY+16,   mTickAndCirclePaint);
             canvas.drawText("9",  mCenterX-176, mCenterY+16,   mTickAndCirclePaint);
+            canvas.drawText(mDayDateFormat.format(mDate), 128, 112, mDayDatePaint);
         }
 
         @Override

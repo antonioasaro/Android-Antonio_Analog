@@ -709,7 +709,7 @@ public class ComplicationWatchFaceService extends CanvasWatchFaceService {
             if (hour == 0) {hour = 12; }
             if (hour > 9) { time_off = 28; }
             String time_str = String.format("%d:%02d", hour, minute);
-            canvas.drawText(time_str, 177 - time_off, 154, mTimePaint);
+            canvas.drawText(time_str, 176 - time_off, 154, mTimePaint);
 ////            canvas.drawText(mDayDateFormat.format(mDate), 128, 112, mDayDatePaint);
 
             if (mDimHands) {

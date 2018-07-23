@@ -14,6 +14,7 @@ import android.graphics.ColorMatrix;
 import android.graphics.ColorMatrixColorFilter;
 import android.graphics.Paint;
 import android.graphics.Rect;
+import android.os.BatteryManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -198,6 +199,9 @@ public class ComplicationWatchFaceService extends CanvasWatchFaceService {
         private boolean mBurnInProtection;
         private SparseArray<ComplicationData> mComplicationDataSparseArray;
         private SparseArray<ComplicationDrawable> mComplicationDrawableSparseArray;
+        private boolean mDimHands;
+        float mBatteryLevel;
+        Intent mBatteryStatus;
 
         Date mDate;
         SimpleDateFormat mDayOfWeekFormat;
@@ -214,6 +218,9 @@ public class ComplicationWatchFaceService extends CanvasWatchFaceService {
 
             mCalendar = Calendar.getInstance();
             mDate = new Date();
+            mDimHands = false;
+            mBatteryLevel = -1;
+
             initFormats();
             initializeBackground();
             initialComplications();
@@ -260,7 +267,7 @@ public class ComplicationWatchFaceService extends CanvasWatchFaceService {
 
             int diameter = 100;
             Rect leftBounds =   new Rect (64,  148, 64+diameter,  148+diameter);
-            Rect centerBounds = new Rect (150, 232, 150+diameter, 232+diameter);
+            Rect centerBounds = new Rect (152, 232, 152+diameter, 232+diameter);
             Rect rightBounds =  new Rect (240, 148, 240+diameter, 148+diameter);
 
             leftComplicationDrawable.setBounds(leftBounds);
@@ -337,7 +344,7 @@ public class ComplicationWatchFaceService extends CanvasWatchFaceService {
 
         @Override
         public void onComplicationDataUpdate(int complicationId, ComplicationData complicationData) {
-            Log.d(TAG, "onComplicationDataUpdate()");
+////            Log.d(TAG, "onComplicationDataUpdate()");
             mComplicationDataSparseArray.put(complicationId, complicationData);
             ComplicationDrawable complicationDrawable = mComplicationDrawableSparseArray.get(complicationId);
             complicationDrawable.setComplicationData(complicationData);
@@ -347,6 +354,7 @@ public class ComplicationWatchFaceService extends CanvasWatchFaceService {
         @Override
         public void onTimeTick() {
             super.onTimeTick();
+            if (mDimHands) { mDimHands = false; }
             invalidate();
         }
 
@@ -487,6 +495,7 @@ public class ComplicationWatchFaceService extends CanvasWatchFaceService {
                     // The user has started a different gesture or otherwise cancelled the tap.
                     break;
                 case TAP_TYPE_TAP:
+                    mDimHands = !mDimHands;
                     // The user has completed the tap gesture.
                     // TODO: Add code to handle the tap gesture.
 ////                    Toast.makeText(getApplicationContext(), R.string.message, Toast.LENGTH_SHORT).show();
@@ -537,7 +546,7 @@ public class ComplicationWatchFaceService extends CanvasWatchFaceService {
         // Fires PendingIntent associated with complication (if it has one).
         private void onComplicationTap(int complicationId) {
             // TODO: Step 5, onComplicationTap()
-            Log.d(TAG, "onComplicationTap()");
+////            Log.d(TAG, "onComplicationTap()");
 
             ComplicationData complicationData =
                     mComplicationDataSparseArray.get(complicationId);
@@ -578,6 +587,7 @@ public class ComplicationWatchFaceService extends CanvasWatchFaceService {
             mCalendar.setTimeInMillis(now);
 
             drawBackground(canvas);
+            drawBattery(canvas, now);
             drawComplications(canvas, now);
             drawWatchFace(canvas);
         }
@@ -590,6 +600,35 @@ public class ComplicationWatchFaceService extends CanvasWatchFaceService {
             } else {
                 canvas.drawBitmap(mBackgroundBitmap, 0, 0, mBackgroundPaint);
             }
+        }
+
+        private void drawBattery(Canvas canvas, long currentTimeMillis) {
+            Paint mBatteryPaint =  new Paint();
+            long now = System.currentTimeMillis();
+            mCalendar.setTimeInMillis(now);
+            int minute = mCalendar.get(Calendar.MINUTE);
+
+            if ((mBatteryLevel == -1) || ((minute % 15) == 0)) {
+                IntentFilter ifilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
+                mBatteryStatus = getApplicationContext().registerReceiver(null, ifilter);
+                mBatteryLevel = mBatteryStatus.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);
+            }
+
+            //// Draw battery indicator
+            if (!isInAmbientMode()) {
+////                mBatteryLevel = 15;
+                int b_xoff, b_yoff;
+                b_xoff = 171; b_yoff = 2;
+                mBatteryPaint.setARGB(0xFF, 0x00, 0xFF, 0x00);
+                if (mBatteryLevel <= 75) { mBatteryPaint.setARGB(0xFF, 0xFF, 0xFF, 0x00); }
+                if (mBatteryLevel <= 50) { mBatteryPaint.setARGB(0xFF, 0xFF, 0xA5, 0x00); }
+                if (mBatteryLevel <= 25) { mBatteryPaint.setARGB(0xFF, 0xFF, 0x00, 0x00); }
+                canvas.drawRect(20 + b_xoff, 63 + b_yoff, 20 + b_xoff + 16, 63 + b_yoff + 10, mBatteryPaint);
+                canvas.drawRect(17 + b_xoff, 68 + b_yoff, 17 + b_xoff + 24, 68 + b_yoff + 40, mBatteryPaint);
+                mBatteryPaint.setARGB(0xFF, 0x00, 0x00, 0x00);
+                canvas.drawRect(19 + b_xoff, 72 + b_yoff, 19 + b_xoff + 20, 72 + b_yoff + 36 * (100 - mBatteryLevel) / 100, mBatteryPaint);
+            }
+
         }
 
         private void drawComplications(Canvas canvas, long currentTimeMillis) {
@@ -655,8 +694,29 @@ public class ComplicationWatchFaceService extends CanvasWatchFaceService {
             canvas.drawText("6",  mCenterX-14,  mCenterY+180, mTickAndCirclePaint);
             canvas.drawText("3",  mCenterX+154, mCenterY+16,  mTickAndCirclePaint);
             canvas.drawText("9",  mCenterX-176, mCenterY+16,  mTickAndCirclePaint);
-            canvas.drawText(mDayDateFormat.format(mDate), 128, 112, mDayDatePaint);
 
+            long now = System.currentTimeMillis();
+            mDate.setTime(now);
+            mCalendar.setTimeInMillis(now);
+            int hour = mCalendar.get(Calendar.HOUR);
+            int minute = mCalendar.get(Calendar.MINUTE);
+
+            Paint mTimePaint = new Paint();
+            mTimePaint.setTextSize(36);
+            mTimePaint.setARGB(0xFF, 0xFF, 0xFF, 0xFF);
+
+            int time_off = 4;
+            if (hour == 0) {hour = 12; }
+            if (hour > 9) { time_off = 28; }
+            String time_str = String.format("%d:%02d", hour, minute);
+            canvas.drawText(time_str, 177 - time_off, 154, mTimePaint);
+////            canvas.drawText(mDayDateFormat.format(mDate), 128, 112, mDayDatePaint);
+
+            if (mDimHands) {
+                mHourPaint.setAlpha(0x60); mMinutePaint.setAlpha(0x60);
+            } else {
+                mHourPaint.setAlpha(0xFF); mMinutePaint.setAlpha(0xFF);
+            }
             canvas.rotate(hoursRotation, mCenterX, mCenterY);
             canvas.drawLine(mCenterX,mCenterY - CENTER_GAP_AND_CIRCLE_RADIUS-16, mCenterX,mCenterY - sHourHandLength, mHourPaint);
             canvas.rotate(minutesRotation - hoursRotation, mCenterX, mCenterY);

@@ -67,6 +67,7 @@
             </intent-filter>
         </service>
 
+        <activity android:name="android.support.wearable.complications.ComplicationHelperActivity"/>
         <activity
             android:name=".ComplicationConfigActivity"
             android:label="ComplicationConfigActivity">

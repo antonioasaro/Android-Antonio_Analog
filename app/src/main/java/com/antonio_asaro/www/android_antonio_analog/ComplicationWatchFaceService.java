@@ -263,7 +263,7 @@ public class ComplicationWatchFaceService extends CanvasWatchFaceService {
 
             leftComplicationDrawable.setBorderColorActive(Color.YELLOW);
             centerComplicationDrawable.setBorderColorActive(Color.WHITE);
-            rightComplicationDrawable.setBorderColorActive(Color.GREEN);
+            rightComplicationDrawable.setBorderColorActive(Color.parseColor("#FF9800"));
 
             int diameter = 100;
             Rect leftBounds =   new Rect (64,  148, 64+diameter,  148+diameter);

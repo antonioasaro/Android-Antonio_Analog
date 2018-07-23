@@ -21,7 +21,6 @@ import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.wearable.complications.ComplicationHelperActivity;
 import android.support.wearable.complications.ComplicationProviderInfo;
 import android.support.wearable.complications.ProviderChooserIntent;
 import android.support.wearable.complications.ProviderInfoRetriever;
@@ -171,6 +170,7 @@ public class ComplicationConfigActivity extends Activity implements View.OnClick
                     ComplicationWatchFaceService.getSupportedComplicationTypes(
                             complicationLocation);
 
+/*
             startActivityForResult(
                     ComplicationHelperActivity.createProviderChooserHelperIntent(
                             getApplicationContext(),
@@ -178,6 +178,7 @@ public class ComplicationConfigActivity extends Activity implements View.OnClick
                             mSelectedComplicationId,
                             supportedTypes),
                     ComplicationConfigActivity.COMPLICATION_CONFIG_REQUEST_CODE);
+*/
 
         } else {
             Log.d(TAG, "Complication not supported by watch face.");

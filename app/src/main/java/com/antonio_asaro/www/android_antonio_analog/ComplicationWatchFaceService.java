@@ -208,6 +208,10 @@ public class ComplicationWatchFaceService extends CanvasWatchFaceService {
         Bitmap mMarvinBitmap;
         Drawable mEarthDrawable;
         Bitmap mEarthBitmap;
+        Drawable mStarDrawable;
+        Bitmap mStarBitmap;
+        Drawable mCometDrawable;
+        Bitmap mCometBitmap;
 
         Date mDate;
         SimpleDateFormat mDayOfWeekFormat;
@@ -230,6 +234,10 @@ public class ComplicationWatchFaceService extends CanvasWatchFaceService {
             mMarvinBitmap = ((BitmapDrawable) mMarvinDrawable).getBitmap();
             mEarthDrawable = getResources().getDrawable(R.drawable.earth, null);
             mEarthBitmap = ((BitmapDrawable) mEarthDrawable).getBitmap();
+            mStarDrawable = getResources().getDrawable(R.drawable.star, null);
+            mStarBitmap = ((BitmapDrawable) mStarDrawable).getBitmap();
+            mCometDrawable = getResources().getDrawable(R.drawable.comet, null);
+            mCometBitmap = ((BitmapDrawable) mCometDrawable).getBitmap();
 
             initFormats();
             initializeBackground();
@@ -271,14 +279,14 @@ public class ComplicationWatchFaceService extends CanvasWatchFaceService {
             centerComplicationDrawable.setTextColorActive(Color.WHITE);
             rightComplicationDrawable.setTextColorActive(Color.WHITE);
 
-            leftComplicationDrawable.setBorderColorActive(Color.YELLOW);
+            leftComplicationDrawable.setBorderColorActive(Color.parseColor("#FF9800"));
             centerComplicationDrawable.setBorderColorActive(Color.WHITE);
-            rightComplicationDrawable.setBorderColorActive(Color.parseColor("#FF9800"));
+            rightComplicationDrawable.setBorderColorActive(Color.parseColor("#673AB7"));
 
             int diameter = 96;
-            Rect leftBounds =   new Rect (64,  148, 64+diameter,  148+diameter);
+            Rect leftBounds =   new Rect (64,  146, 64+diameter,  146+diameter);
             Rect centerBounds = new Rect (152, 232, 152+diameter, 232+diameter);
-            Rect rightBounds =  new Rect (240, 148, 240+diameter, 148+diameter);
+            Rect rightBounds =  new Rect (240, 146, 240+diameter, 146+diameter);
 
             leftComplicationDrawable.setBounds(leftBounds);
             centerComplicationDrawable.setBounds(centerBounds);
@@ -604,8 +612,10 @@ public class ComplicationWatchFaceService extends CanvasWatchFaceService {
             } else {
                 canvas.drawBitmap(mBackgroundBitmap, 0, 0, mBackgroundPaint);
             }
-            canvas.drawBitmap(mMarvinBitmap, 112, 54, null);
-            canvas.drawBitmap(mEarthBitmap,  234, 60, null);
+            canvas.drawBitmap(mStarBitmap,  124,72, null);
+            canvas.drawBitmap(mEarthBitmap, 240,62, null);
+            canvas.drawBitmap(mMarvinBitmap,77, 255,null);
+            canvas.drawBitmap(mCometBitmap, 274,276,null);
         }
 
         private void drawBattery(Canvas canvas, long currentTimeMillis) {

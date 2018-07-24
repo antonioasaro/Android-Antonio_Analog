@@ -1,5 +1,4 @@
 <resources>
-    <string name="app_name">Android-Antonio_Analog</string>
+    <string name="app_name">Marvin_Analog</string>
     <string name="message">Watch face tapped</string>
-    <string name="my_analog_name">Antonio_Analog</string>
 </resources>

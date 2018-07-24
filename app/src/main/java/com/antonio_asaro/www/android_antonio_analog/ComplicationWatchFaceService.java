@@ -14,6 +14,8 @@ import android.graphics.ColorMatrix;
 import android.graphics.ColorMatrixColorFilter;
 import android.graphics.Paint;
 import android.graphics.Rect;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.BatteryManager;
 import android.os.Bundle;
 import android.os.Handler;
@@ -202,6 +204,10 @@ public class ComplicationWatchFaceService extends CanvasWatchFaceService {
         private boolean mDimHands;
         float mBatteryLevel;
         Intent mBatteryStatus;
+        Drawable mMarvinDrawable;
+        Bitmap mMarvinBitmap;
+        Drawable mEarthDrawable;
+        Bitmap mEarthBitmap;
 
         Date mDate;
         SimpleDateFormat mDayOfWeekFormat;
@@ -220,6 +226,10 @@ public class ComplicationWatchFaceService extends CanvasWatchFaceService {
             mDate = new Date();
             mDimHands = false;
             mBatteryLevel = -1;
+            mMarvinDrawable = getResources().getDrawable(R.drawable.marvin, null);
+            mMarvinBitmap = ((BitmapDrawable) mMarvinDrawable).getBitmap();
+            mEarthDrawable = getResources().getDrawable(R.drawable.earth, null);
+            mEarthBitmap = ((BitmapDrawable) mEarthDrawable).getBitmap();
 
             initFormats();
             initializeBackground();
@@ -265,7 +275,7 @@ public class ComplicationWatchFaceService extends CanvasWatchFaceService {
             centerComplicationDrawable.setBorderColorActive(Color.WHITE);
             rightComplicationDrawable.setBorderColorActive(Color.parseColor("#FF9800"));
 
-            int diameter = 100;
+            int diameter = 96;
             Rect leftBounds =   new Rect (64,  148, 64+diameter,  148+diameter);
             Rect centerBounds = new Rect (152, 232, 152+diameter, 232+diameter);
             Rect rightBounds =  new Rect (240, 148, 240+diameter, 148+diameter);
@@ -344,7 +354,6 @@ public class ComplicationWatchFaceService extends CanvasWatchFaceService {
 
         @Override
         public void onComplicationDataUpdate(int complicationId, ComplicationData complicationData) {
-////            Log.d(TAG, "onComplicationDataUpdate()");
             mComplicationDataSparseArray.put(complicationId, complicationData);
             ComplicationDrawable complicationDrawable = mComplicationDrawableSparseArray.get(complicationId);
             complicationDrawable.setComplicationData(complicationData);
@@ -512,7 +521,6 @@ public class ComplicationWatchFaceService extends CanvasWatchFaceService {
          * Determines if tap inside a complication area or returns -1.
          */
         private int getTappedComplicationId(int x, int y) {
-
             int complicationId;
             ComplicationData complicationData;
             ComplicationDrawable complicationDrawable;
@@ -545,14 +553,10 @@ public class ComplicationWatchFaceService extends CanvasWatchFaceService {
 
         // Fires PendingIntent associated with complication (if it has one).
         private void onComplicationTap(int complicationId) {
-            // TODO: Step 5, onComplicationTap()
-////            Log.d(TAG, "onComplicationTap()");
-
             ComplicationData complicationData =
                     mComplicationDataSparseArray.get(complicationId);
 
             if (complicationData != null) {
-
                 if (complicationData.getTapAction() != null) {
                     try {
                         complicationData.getTapAction().send();
@@ -600,6 +604,8 @@ public class ComplicationWatchFaceService extends CanvasWatchFaceService {
             } else {
                 canvas.drawBitmap(mBackgroundBitmap, 0, 0, mBackgroundPaint);
             }
+            canvas.drawBitmap(mMarvinBitmap, 112, 54, null);
+            canvas.drawBitmap(mEarthBitmap,  234, 60, null);
         }
 
         private void drawBattery(Canvas canvas, long currentTimeMillis) {
@@ -653,7 +659,7 @@ public class ComplicationWatchFaceService extends CanvasWatchFaceService {
             float outerTickRadius = mCenterX;
             mTickAndCirclePaint.setStrokeWidth(MINUTE_STROKE_WIDTH);
             for (int tickIndex = 0; tickIndex < 12; tickIndex++) {
-                innerTickRadius = mCenterX - 40;
+                innerTickRadius = mCenterX - 32;
                 if ((tickIndex == 0) || (tickIndex == 3) || (tickIndex == 6) || (tickIndex == 9)) { innerTickRadius = mCenterX - 12; }
                 float tickRot = (float) (tickIndex * Math.PI * 2 / 12);
                 float innerX = (float) Math.sin(tickRot) * innerTickRadius;
@@ -700,7 +706,6 @@ public class ComplicationWatchFaceService extends CanvasWatchFaceService {
             mCalendar.setTimeInMillis(now);
             int hour = mCalendar.get(Calendar.HOUR);
             int minute = mCalendar.get(Calendar.MINUTE);
-
             Paint mTimePaint = new Paint();
             mTimePaint.setTextSize(36);
             mTimePaint.setARGB(0xFF, 0xFF, 0xFF, 0xFF);
@@ -709,7 +714,7 @@ public class ComplicationWatchFaceService extends CanvasWatchFaceService {
             if (hour == 0) {hour = 12; }
             if (hour > 9) { time_off = 28; }
             String time_str = String.format("%d:%02d", hour, minute);
-            canvas.drawText(time_str, 176 - time_off, 154, mTimePaint);
+            canvas.drawText(time_str, 175 - time_off, 154, mTimePaint);
 ////            canvas.drawText(mDayDateFormat.format(mDate), 128, 112, mDayDatePaint);
 
             if (mDimHands) {
@@ -729,8 +734,8 @@ public class ComplicationWatchFaceService extends CanvasWatchFaceService {
             if (!mAmbient) {
                 canvas.rotate(secondsRotation - minutesRotation, mCenterX, mCenterY);
                 canvas.drawLine(mCenterX,mCenterY - CENTER_GAP_AND_CIRCLE_RADIUS+24, mCenterX,mCenterY - mSecondHandLength, mSecondPaint);
-
             }
+
             canvas.drawCircle(
                     mCenterX,
                     mCenterY,

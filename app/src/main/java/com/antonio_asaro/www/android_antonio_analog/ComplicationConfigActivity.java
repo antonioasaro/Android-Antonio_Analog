@@ -138,7 +138,6 @@ public class ComplicationConfigActivity extends Activity implements View.OnClick
                     public void onProviderInfoReceived(
                             int watchFaceComplicationId,
                             @Nullable ComplicationProviderInfo complicationProviderInfo) {
-////                        Log.d(TAG, "onProviderInfoReceived: " + complicationProviderInfo);
                         updateComplicationViews(watchFaceComplicationId, complicationProviderInfo);
                     }
                 },
@@ -149,13 +148,10 @@ public class ComplicationConfigActivity extends Activity implements View.OnClick
     @Override
     public void onClick(View view) {
         if (view.equals(mLeftComplication)) {
-/**/            Log.d(TAG, "Left Complication click()");
             launchComplicationHelperActivity(ComplicationLocation.LEFT);
         } else if (view.equals(mCenterComplication)) {
-/**/            Log.d(TAG, "Center Complication click()");
             launchComplicationHelperActivity(ComplicationLocation.CENTER);
         } else if (view.equals(mRightComplication)) {
-/**/            Log.d(TAG, "Right Complication click()");
             launchComplicationHelperActivity(ComplicationLocation.RIGHT);
         }
     }
@@ -186,12 +182,7 @@ public class ComplicationConfigActivity extends Activity implements View.OnClick
 
 
     public void updateComplicationViews(
-            int watchFaceComplicationId, ComplicationProviderInfo complicationProviderInfo) {
-/*
-        Log.d(TAG, "updateComplicationViews(): id: " + watchFaceComplicationId);
-        Log.d(TAG, "\tinfo: " + complicationProviderInfo);
-*/
-
+        int watchFaceComplicationId, ComplicationProviderInfo complicationProviderInfo) {
         if (watchFaceComplicationId == mLeftComplicationId) {
             if (complicationProviderInfo != null) {
                 mLeftComplication.setImageIcon(complicationProviderInfo.providerIcon);
@@ -220,16 +211,13 @@ public class ComplicationConfigActivity extends Activity implements View.OnClick
         }
     }
 
-    @Override
+        @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 
         if (requestCode == COMPLICATION_CONFIG_REQUEST_CODE && resultCode == RESULT_OK) {
-
             // Retrieves information for selected Complication provider.
             ComplicationProviderInfo complicationProviderInfo =
                     data.getParcelableExtra(ProviderChooserIntent.EXTRA_PROVIDER_INFO);
-////            Log.d(TAG, "Provider: " + complicationProviderInfo);
-
             if (mSelectedComplicationId >= 0) {
                 updateComplicationViews(mSelectedComplicationId, complicationProviderInfo);
             }

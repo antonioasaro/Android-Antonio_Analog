@@ -279,8 +279,8 @@ public class ComplicationWatchFaceService extends CanvasWatchFaceService {
             centerComplicationDrawable.setTextColorActive(Color.WHITE);
             rightComplicationDrawable.setTextColorActive(Color.WHITE);
 
-            leftComplicationDrawable.setBorderColorActive(Color.parseColor("#FF9800"));
-            centerComplicationDrawable.setBorderColorActive(Color.WHITE);
+            leftComplicationDrawable.setBorderColorActive(Color.parseColor("#FFE200"));
+            centerComplicationDrawable.setBorderColorActive(Color.parseColor("#FFFFFF"));
             rightComplicationDrawable.setBorderColorActive(Color.parseColor("#673AB7"));
 
             int diameter = 96;

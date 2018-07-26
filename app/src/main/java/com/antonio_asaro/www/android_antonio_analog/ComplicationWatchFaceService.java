@@ -212,6 +212,8 @@ public class ComplicationWatchFaceService extends CanvasWatchFaceService {
         Bitmap mStarBitmap;
         Drawable mCometDrawable;
         Bitmap mCometBitmap;
+        Drawable mSaturnDrawable;
+        Bitmap mSaturnBitmap;
 
         Date mDate;
         SimpleDateFormat mDayOfWeekFormat;
@@ -238,6 +240,8 @@ public class ComplicationWatchFaceService extends CanvasWatchFaceService {
             mStarBitmap = ((BitmapDrawable) mStarDrawable).getBitmap();
             mCometDrawable = getResources().getDrawable(R.drawable.comet, null);
             mCometBitmap = ((BitmapDrawable) mCometDrawable).getBitmap();
+            mSaturnDrawable = getResources().getDrawable(R.drawable.saturn, null);
+            mSaturnBitmap = ((BitmapDrawable) mSaturnDrawable).getBitmap();
 
             initFormats();
             initializeBackground();
@@ -284,9 +288,9 @@ public class ComplicationWatchFaceService extends CanvasWatchFaceService {
             rightComplicationDrawable.setBorderColorActive(Color.parseColor("#673AB7"));
 
             int diameter = 96;
-            Rect leftBounds =   new Rect (64,  146, 64+diameter,  146+diameter);
-            Rect centerBounds = new Rect (152, 232, 152+diameter, 232+diameter);
-            Rect rightBounds =  new Rect (240, 146, 240+diameter, 146+diameter);
+            Rect leftBounds =   new Rect (64,  144, 64+diameter,  144+diameter);
+            Rect centerBounds = new Rect (153, 232, 153+diameter, 232+diameter);
+            Rect rightBounds =  new Rect (241, 144, 241+diameter, 144+diameter);
 
             leftComplicationDrawable.setBounds(leftBounds);
             centerComplicationDrawable.setBounds(centerBounds);
@@ -612,10 +616,11 @@ public class ComplicationWatchFaceService extends CanvasWatchFaceService {
             } else {
                 canvas.drawBitmap(mBackgroundBitmap, 0, 0, mBackgroundPaint);
             }
-            canvas.drawBitmap(mStarBitmap,  124,72, null);
+//            canvas.drawBitmap(mStarBitmap,  124,72, null);
+            canvas.drawBitmap(mSaturnBitmap,124,74, null);
             canvas.drawBitmap(mEarthBitmap, 240,62, null);
-            canvas.drawBitmap(mMarvinBitmap,77, 255,null);
-            canvas.drawBitmap(mCometBitmap, 274,276,null);
+            canvas.drawBitmap(mMarvinBitmap,72, 252,null);
+            canvas.drawBitmap(mCometBitmap, 272,276,null);
         }
 
         private void drawBattery(Canvas canvas, long currentTimeMillis) {

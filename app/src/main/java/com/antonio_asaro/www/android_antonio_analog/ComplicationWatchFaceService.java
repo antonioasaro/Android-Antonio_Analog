@@ -417,7 +417,7 @@ public class ComplicationWatchFaceService extends CanvasWatchFaceService {
                 mHourPaint.setColor(mWatchHandColor);
                 mMinutePaint.setColor(mWatchHandColor);
                 mSecondPaint.setColor(mWatchHandHighlightColor);
-                mTickAndCirclePaint.setColor(mWatchHandColor);
+                mTickAndCirclePaint.setColor(mWatchTickColor);
 
                 mHourPaint.setAntiAlias(true);
                 mMinutePaint.setAntiAlias(true);
@@ -617,10 +617,13 @@ public class ComplicationWatchFaceService extends CanvasWatchFaceService {
                 canvas.drawBitmap(mBackgroundBitmap, 0, 0, mBackgroundPaint);
             }
 //            canvas.drawBitmap(mStarBitmap,  124,72, null);
-            canvas.drawBitmap(mSaturnBitmap,124,74, null);
-            canvas.drawBitmap(mEarthBitmap, 240,62, null);
-            canvas.drawBitmap(mMarvinBitmap,72, 252,null);
-            canvas.drawBitmap(mCometBitmap, 272,276,null);
+
+            if (!mAmbient) {
+                canvas.drawBitmap(mSaturnBitmap, 124, 74, null);
+                canvas.drawBitmap(mEarthBitmap, 240, 62, null);
+                canvas.drawBitmap(mMarvinBitmap, 72, 252, null);
+                canvas.drawBitmap(mCometBitmap, 272, 276, null);
+            }
         }
 
         private void drawBattery(Canvas canvas, long currentTimeMillis) {

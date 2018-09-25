@@ -59,7 +59,7 @@ public class ComplicationWatchFaceService extends CanvasWatchFaceService {
      * Updates rate in milliseconds for interactive mode. We update once a second to advance the
      * second hand.
      */
-    private static final long INTERACTIVE_UPDATE_RATE_MS = TimeUnit.SECONDS.toMillis(1);
+    private static final long INTERACTIVE_UPDATE_RATE_MS = TimeUnit.MILLISECONDS.toMillis(33); // TimeUnit.SECONDS.toMillis(1);
 
     /**
      * Handler message id for updating the time periodically in interactive mode.

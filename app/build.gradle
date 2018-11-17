@@ -6,8 +6,8 @@ android {
         applicationId "com.antonio_asaro.www.android_antonio_analog"
         minSdkVersion 25
         targetSdkVersion 27
-        versionCode 102
-        versionName "1.02"
+        versionCode 103
+        versionName "1.03"
         multiDexEnabled true
     }
     buildTypes {

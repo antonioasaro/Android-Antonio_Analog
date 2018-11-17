@@ -658,11 +658,18 @@ public class ComplicationWatchFaceService extends CanvasWatchFaceService {
         private void drawComplications(Canvas canvas, long currentTimeMillis) {
             int complicationId;
             ComplicationDrawable complicationDrawable;
+            Paint complicationPaint;
 
+            complicationPaint = new Paint();
+            complicationPaint.setColor(Color.WHITE);
+            complicationPaint.setStyle(Paint.Style.STROKE);
             for (int i = 0; i < COMPLICATION_IDS.length; i++) {
                 complicationId = COMPLICATION_IDS[i];
                 complicationDrawable = mComplicationDrawableSparseArray.get(complicationId);
                 complicationDrawable.draw(canvas, currentTimeMillis);
+                if (mAmbient) {
+                    canvas.drawCircle(complicationDrawable.getBounds().centerX(), complicationDrawable.getBounds().centerY(), complicationDrawable.getBounds().width() / 2, complicationPaint);
+                }
             }
         }
 
@@ -728,11 +735,13 @@ public class ComplicationWatchFaceService extends CanvasWatchFaceService {
             mTimePaint.setTextSize(36);
             mTimePaint.setARGB(0xFF, 0xFF, 0xFF, 0xFF);
 
-            int time_off = 4;
+            int time_xoff = 4;
+            int time_yoff = 0;
             if (hour == 0) {hour = 12; }
-            if (hour > 9) { time_off = 19; }
+            if (hour > 9) { time_xoff = 19; }
             String time_str = String.format("%d:%02d", hour, minute);
-            canvas.drawText(time_str, 175 - time_off, 154, mTimePaint);
+            if (mAmbient) { time_yoff = 20; }
+            canvas.drawText(time_str, 175 - time_xoff, 154 - time_yoff, mTimePaint);
 ////            canvas.drawText(mDayDateFormat.format(mDate), 128, 112, mDayDatePaint);
 
             if (mDimHands) {

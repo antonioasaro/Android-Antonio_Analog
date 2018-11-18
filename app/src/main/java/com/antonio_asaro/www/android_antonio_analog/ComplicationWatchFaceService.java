@@ -292,10 +292,12 @@ public class ComplicationWatchFaceService extends CanvasWatchFaceService {
                 mWearableConnected = false;
                 for (Node node : getConnectedNodesResult.getNodes()){
                     if (node.isNearby()){
+                        Log.d(TAG, "OnResult() nearby: " + node.getDisplayName());
                         mWearableConnected = true;
                     }
                 }
             }
+            Log.d(TAG, "OnResult() BT connected: " + mWearableConnected);
         }
 
         private void initializeBackground() {
@@ -354,7 +356,7 @@ public class ComplicationWatchFaceService extends CanvasWatchFaceService {
 
         private void initializeWatchFace() {
             /* Set defaults for colors */
-            mWatchHandColor = Color.parseColor("#005F9F");
+            mWatchHandColor = Color.parseColor("#00BFFF");
             mWatchTickColor = Color.parseColor("#808080");
             mWatchHandHighlightColor = Color.RED;
             mWatchHandShadowColor = Color.BLACK;
@@ -511,7 +513,7 @@ public class ComplicationWatchFaceService extends CanvasWatchFaceService {
              * Calculate lengths of different hands based on watch screen size.
              */
             mSecondHandLength = (float) (mCenterX * 0.875);
-            sMinuteHandLength = (float) (mCenterX * 0.8);
+            sMinuteHandLength = (float) (mCenterX * 0.75);
             sHourHandLength = (float) (mCenterX * 0.5);
 
 
@@ -650,7 +652,7 @@ public class ComplicationWatchFaceService extends CanvasWatchFaceService {
         public void onDraw(Canvas canvas, Rect bounds) {
             long now = System.currentTimeMillis();
             mCalendar.setTimeInMillis(now);
-            if (mCalendar.get(Calendar.MINUTE % 4) == 0) { inspectNodes(); }
+            if ((mCalendar.get(Calendar.MINUTE) % 4)== 0) { inspectNodes(); }
 
             drawBackground(canvas);
             drawBattery(canvas, now);
@@ -660,9 +662,11 @@ public class ComplicationWatchFaceService extends CanvasWatchFaceService {
         }
 
         private void checkWearableBT(Canvas canvas) {
+            Paint paint = new Paint();
+            paint.setColor(Color.BLACK);
+
             if (!mWearableConnected) {
                 if (!mAmbient) {
-                    Paint paint = new Paint(); paint.setColor(Color.BLACK);
                     canvas.drawRect(176, 60, 176+48, 68+48, paint);
                     canvas.drawBitmap(mDisonnectBitmap, 182, 68, null);
                 }

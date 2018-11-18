@@ -21,6 +21,7 @@
 
     <!-- Required to act as a custom watch face. -->
     <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.VIBRATE"/>
 
     <!-- TODO: Step 2, receiveComplicationData -->
     <!-- Required for complications to receive complication data and open the provider chooser. -->

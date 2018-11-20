@@ -20,7 +20,6 @@ import android.os.BatteryManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.os.Vibrator;
 import android.support.wearable.complications.ComplicationData;
 import android.support.wearable.complications.ComplicationHelperActivity;
 import android.support.wearable.complications.SystemProviders;
@@ -32,12 +31,6 @@ import android.text.format.DateFormat;
 import android.util.Log;
 import android.util.SparseArray;
 import android.view.SurfaceHolder;
-
-import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.common.api.ResultCallback;
-import com.google.android.gms.wearable.Node;
-import com.google.android.gms.wearable.NodeApi;
-import com.google.android.gms.wearable.Wearable;
 
 import java.lang.ref.WeakReference;
 import java.text.SimpleDateFormat;
@@ -138,7 +131,8 @@ public class ComplicationWatchFaceService extends CanvasWatchFaceService {
                 return new int[] {};
         }
     }
-////    private SensorManager mSensorManager;
+
+    public static boolean mWearableConnected;
 
 
     @Override
@@ -166,7 +160,7 @@ public class ComplicationWatchFaceService extends CanvasWatchFaceService {
         }
     }
 
-    private class Engine extends CanvasWatchFaceService.Engine implements ResultCallback<NodeApi.GetConnectedNodesResult> {
+    private class Engine extends CanvasWatchFaceService.Engine {
         private static final float HOUR_STROKE_WIDTH = 12f;
         private static final float MINUTE_STROKE_WIDTH = 10f;
         private static final float SECOND_TICK_STROKE_WIDTH = 2f;
@@ -187,17 +181,11 @@ public class ComplicationWatchFaceService extends CanvasWatchFaceService {
         };
         private boolean mRegisteredTimeZoneReceiver = false;
         private boolean mMuteMode;
-
-        private GoogleApiClient mGoogleApiClient;
-        private boolean mWearableConnected;
-        private boolean mSentVibration;
-
         private float mCenterX;
         private float mCenterY;
         private float mSecondHandLength;
         private float sMinuteHandLength;
         private float sHourHandLength;
-        /* Colors for all hands (hour, minute, seconds, ticks) based on photo loaded. */
         private int mWatchHandColor;
         private int mWatchTickColor;
         private int mWatchHandHighlightColor;
@@ -239,26 +227,12 @@ public class ComplicationWatchFaceService extends CanvasWatchFaceService {
         @Override
         public void onCreate(SurfaceHolder holder) {
             super.onCreate(holder);
-            mGoogleApiClient = new GoogleApiClient.Builder(ComplicationWatchFaceService.this)
-                    .addApi(Wearable.API)
-                    .addConnectionCallbacks(new GoogleApiClient.ConnectionCallbacks() {
-                        @Override
-                        public void onConnected(Bundle connectionHint) {
-                            inspectNodes();
-                        }
-                        @Override
-                        public void onConnectionSuspended(int cause) {
-                        }
-                    })
-                    .build();
-            mGoogleApiClient.connect();
 
             setWatchFaceStyle(new WatchFaceStyle.Builder(ComplicationWatchFaceService.this)
                     .setAcceptsTapEvents(true)
                     .build());
 
-            mWearableConnected = false;
-            mSentVibration = false;
+            mWearableConnected = true;
             mCalendar = Calendar.getInstance();
             mDate = new Date();
             mDimHands = false;
@@ -282,23 +256,6 @@ public class ComplicationWatchFaceService extends CanvasWatchFaceService {
             initializeWatchFace();
         }
 
-        private void inspectNodes(){
-            Wearable.NodeApi.getConnectedNodes(mGoogleApiClient).setResultCallback(this, 1000, TimeUnit.MILLISECONDS);
-        }
-
-        @Override
-        public void onResult(NodeApi.GetConnectedNodesResult getConnectedNodesResult) {
-            if (getConnectedNodesResult != null && getConnectedNodesResult.getNodes() != null){
-                mWearableConnected = false;
-                for (Node node : getConnectedNodesResult.getNodes()){
-                    if (node.isNearby()){
-                        Log.d(TAG, "OnResult() nearby: " + node.getDisplayName());
-                        mWearableConnected = true;
-                    }
-                }
-            }
-            Log.d(TAG, "OnResult() BT connected: " + mWearableConnected);
-        }
 
         private void initializeBackground() {
             mBackgroundPaint = new Paint();
@@ -651,8 +608,6 @@ public class ComplicationWatchFaceService extends CanvasWatchFaceService {
         @Override
         public void onDraw(Canvas canvas, Rect bounds) {
             long now = System.currentTimeMillis();
-            mCalendar.setTimeInMillis(now);
-            if ((mCalendar.get(Calendar.MINUTE) % 4)== 0) { inspectNodes(); }
 
             drawBackground(canvas);
             drawBattery(canvas, now);
@@ -670,14 +625,6 @@ public class ComplicationWatchFaceService extends CanvasWatchFaceService {
                     canvas.drawRect(176, 60, 176+48, 68+48, paint);
                     canvas.drawBitmap(mDisonnectBitmap, 182, 68, null);
                 }
-                if (!mSentVibration) {
-                    Vibrator vibrator = (Vibrator) getSystemService(VIBRATOR_SERVICE);
-                    long[] vibrationPattern = {0, 500, 250, 500};
-                    vibrator.vibrate(vibrationPattern, -1);
-                    mSentVibration = true;
-                }
-            } else {
-                mSentVibration = false;
             }
         }
 

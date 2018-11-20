@@ -1,5 +1,6 @@
 package com.antonio_asaro.www.android_antonio_analog;
 
+import android.os.Vibrator;
 import android.util.Log;
 
 import com.google.android.gms.wearable.CapabilityInfo;
@@ -34,13 +35,18 @@ public class ComplicationListenerService extends WearableListenerService {
     }
 
     @Override
-    public void onPeerDisconnected(com.google.android.gms.wearable.Node peer) {
-        Log.d(TAG, "onPeerDisconnected()");
+    public void onPeerConnected(com.google.android.gms.wearable.Node peer) {
+        Log.d(TAG, "onPeerConnected()");
+        ComplicationWatchFaceService.mWearableConnected = true;
     }
 
     @Override
-    public void onPeerConnected(com.google.android.gms.wearable.Node peer) {
-        Log.d(TAG, "onPeerConnected()");
+    public void onPeerDisconnected(com.google.android.gms.wearable.Node peer) {
+        Log.d(TAG, "onPeerDisconnected()");
+        ComplicationWatchFaceService.mWearableConnected = false;
+        Vibrator vibrator = (Vibrator) getSystemService(VIBRATOR_SERVICE);
+        long[] vibrationPattern = {0, 500, 250, 500};
+        vibrator.vibrate(vibrationPattern, -1);
     }
 
 }

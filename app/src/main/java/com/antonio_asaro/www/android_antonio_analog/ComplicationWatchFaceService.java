@@ -470,7 +470,7 @@ public class ComplicationWatchFaceService extends CanvasWatchFaceService {
              * Calculate lengths of different hands based on watch screen size.
              */
             mSecondHandLength = (float) (mCenterX * 0.875);
-            sMinuteHandLength = (float) (mCenterX * 0.75);
+            sMinuteHandLength = (float) (mCenterX * 0.70);
             sHourHandLength = (float) (mCenterX * 0.5);
 
 

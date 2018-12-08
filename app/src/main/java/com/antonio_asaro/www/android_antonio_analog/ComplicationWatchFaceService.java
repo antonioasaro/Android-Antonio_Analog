@@ -206,6 +206,7 @@ public class ComplicationWatchFaceService extends CanvasWatchFaceService {
         private boolean mDimHands;
         float mBatteryLevel;
         Intent mBatteryStatus;
+        long mBatteryChecked;
         Drawable mMarvinDrawable;
         Bitmap mMarvinBitmap;
         Drawable mEarthDrawable;
@@ -237,6 +238,7 @@ public class ComplicationWatchFaceService extends CanvasWatchFaceService {
             mDate = new Date();
             mDimHands = false;
             mBatteryLevel = -1;
+            mBatteryChecked = System.currentTimeMillis();
             mMarvinDrawable = getResources().getDrawable(R.drawable.marvin, null);
             mMarvinBitmap = ((BitmapDrawable) mMarvinDrawable).getBitmap();
             mEarthDrawable = getResources().getDrawable(R.drawable.earth, null);
@@ -652,8 +654,10 @@ public class ComplicationWatchFaceService extends CanvasWatchFaceService {
             long now = System.currentTimeMillis();
             mCalendar.setTimeInMillis(now);
             int minute = mCalendar.get(Calendar.MINUTE);
+            long currentTime = System.currentTimeMillis();
 
-            if ((mBatteryLevel == -1) || ((minute % 15) == 0)) {
+            if ((mBatteryLevel == -1) || ((minute % 15) == 0) || ((currentTime - mBatteryChecked) > 30 * 60 * 1000)) {
+                mBatteryChecked = currentTime;
                 IntentFilter ifilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
                 mBatteryStatus = getApplicationContext().registerReceiver(null, ifilter);
                 mBatteryLevel = mBatteryStatus.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);
@@ -774,6 +778,7 @@ public class ComplicationWatchFaceService extends CanvasWatchFaceService {
             canvas.drawLine(mCenterX,mCenterY - CENTER_GAP_AND_CIRCLE_RADIUS-16, mCenterX,mCenterY - sHourHandLength, mHourPaint);
             canvas.rotate(minutesRotation - hoursRotation, mCenterX, mCenterY);
             canvas.drawLine(mCenterX,mCenterY - CENTER_GAP_AND_CIRCLE_RADIUS-16, mCenterX,mCenterY - sMinuteHandLength, mMinutePaint);
+
 
             /*
              * Ensure the "seconds" hand is drawn only when we are in interactive mode.

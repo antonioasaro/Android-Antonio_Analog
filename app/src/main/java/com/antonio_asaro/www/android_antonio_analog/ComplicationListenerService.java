@@ -7,6 +7,7 @@ import com.google.android.gms.wearable.CapabilityInfo;
 import com.google.android.gms.wearable.Node;
 import com.google.android.gms.wearable.WearableListenerService;
 
+import java.util.Calendar;
 import java.util.List;
 
 public class ComplicationListenerService extends WearableListenerService {
@@ -43,10 +44,15 @@ public class ComplicationListenerService extends WearableListenerService {
     @Override
     public void onPeerDisconnected(com.google.android.gms.wearable.Node peer) {
         Log.d(TAG, "onPeerDisconnected()");
+        Calendar now = Calendar.getInstance();
+        int hour = now.get(Calendar.HOUR_OF_DAY);
+
         ComplicationWatchFaceService.mWearableConnected = false;
-        Vibrator vibrator = (Vibrator) getSystemService(VIBRATOR_SERVICE);
-        long[] vibrationPattern = {0, 500, 250, 500};
-        vibrator.vibrate(vibrationPattern, -1);
+        if ((hour >= 7) && (hour <= 22)) {
+            Vibrator vibrator = (Vibrator) getSystemService(VIBRATOR_SERVICE);
+            long[] vibrationPattern = {0, 500, 250, 500};
+            vibrator.vibrate(vibrationPattern, -1);
+        }
     }
 
 }

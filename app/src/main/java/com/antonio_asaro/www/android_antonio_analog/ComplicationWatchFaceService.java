@@ -778,8 +778,12 @@ public class ComplicationWatchFaceService extends CanvasWatchFaceService {
             canvas.drawLine(mCenterX,mCenterY - CENTER_GAP_AND_CIRCLE_RADIUS-16, mCenterX,mCenterY - sHourHandLength, mHourPaint);
             canvas.rotate(minutesRotation - hoursRotation, mCenterX, mCenterY);
             canvas.drawLine(mCenterX,mCenterY - CENTER_GAP_AND_CIRCLE_RADIUS-16, mCenterX,mCenterY - sMinuteHandLength, mMinutePaint);
-            canvas.drawCircle(mCenterX, mCenterY, CENTER_GAP_AND_CIRCLE_RADIUS * 3, mMinutePaint);
 
+            mMinutePaint.setStrokeWidth(4);
+            mMinutePaint.setStyle(Paint.Style.STROKE);
+            canvas.drawCircle(mCenterX, mCenterY - 2, CENTER_GAP_AND_CIRCLE_RADIUS * 3, mMinutePaint);
+            mMinutePaint.setStrokeWidth(MINUTE_STROKE_WIDTH);
+            mMinutePaint.setStyle(Paint.Style.FILL);
 
 
             /*
